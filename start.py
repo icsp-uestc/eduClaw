@@ -30,6 +30,9 @@ if sys.stdout.encoding != 'utf-8':
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
+from dotenv import load_dotenv
+load_dotenv(project_root / ".env")
+
 def parse_args():
     parser = argparse.ArgumentParser(description="EduClaw AgentScope 版本")
     parser.add_argument('--demo', action='store_true', help='运行演示模式')

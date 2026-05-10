@@ -30,41 +30,37 @@ from typing import Callable, Dict, List, Any, Optional
 
 def _check_credit_shortage() -> Optional[Dict[str, Any]]:
     """检查是否存在学分不足的学生 -> 返回触发上下文，否则 None"""
-    from ..core.mock_data import COURSE_DATABASE
-    from ..tools.warning import DEFAULT_RULES
-    # 模拟检查学生数据
-    student = {
-        "name": "Demo User",
-        "gpa": 3.12,
-        "total_credits": 20.0,
-        "required_credits": 140.0,
-        "failed_courses": [],
-    }
-    gap = student["required_credits"] - student["total_credits"]
-    if gap > 10:
-        return {"student": student["name"], "reason": f"学分缺口 {gap:.0f} 分", "gap": gap}
+    from ..core.data_loader import load_students
+    students = load_students()
+    for sid, student in students.items():
+        total = student.get("total_credits", 0)
+        required = student.get("required_credits", 140)
+        gap = required - total
+        if gap > 10:
+            return {"student": student["name"], "reason": f"学分缺口 {gap:.0f} 分", "gap": gap}
     return None
 
 
 def _check_low_gpa() -> Optional[Dict[str, Any]]:
     """检查 GPA 过低"""
-    student = {
-        "name": "Demo User",
-        "gpa": 3.12,
-    }
-    if student["gpa"] < 2.5:
-        return {"student": student["name"], "reason": f"GPA {student['gpa']:.2f} 低于 2.5", "gpa": student["gpa"]}
+    from ..core.data_loader import load_students
+    students = load_students()
+    for sid, student in students.items():
+        gpa = student.get("gpa", 4.0)
+        if gpa < 2.5:
+            return {"student": student["name"], "reason": f"GPA {gpa:.2f} 低于 2.5", "gpa": gpa}
     return None
 
 
 def _check_failed_courses() -> Optional[Dict[str, Any]]:
     """检查是否有挂科"""
-    student = {
-        "name": "Demo User",
-        "failed": [],
-    }
-    if len(student["failed"]) > 0:
-        return {"student": student["name"], "reason": f"{len(student['failed'])} 门挂科", "count": len(student["failed"])}
+    from ..core.data_loader import load_students
+    students = load_students()
+    for sid, student in students.items():
+        records = student.get("grade_records", [])
+        failed = [r for r in records if r.get("score", 100) < 60]
+        if failed:
+            return {"student": student["name"], "reason": f"{len(failed)} 门挂科", "count": len(failed)}
     return None
 
 

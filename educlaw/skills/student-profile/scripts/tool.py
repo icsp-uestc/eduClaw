@@ -3,6 +3,7 @@ from agentscope.message import TextBlock
 
 from ....models.profile import StudentProfile, AbilityScore, GradeRecord, AbilityType
 from ....core.data_loader import get_student
+from ....core.auth import get_current_student
 
 ABILITY_COURSE_MAPPING = {
     AbilityType.PROGRAMMING: {"keywords": ["编程", "程序设计", "Python", "Java", "C++"], "courses": ["程序设计基础", "面向对象程序设计", "数据结构", "软件开发实践"]},
@@ -44,16 +45,15 @@ def _compute_score(courses, ability_type):
 
 async def generate_profile(student_id: str, name: str, major: str, grade: str) -> ToolResponse:
     """生成学生能力画像。基于学生成绩数据计算8项能力指标得分并给出学习建议。"""
-    grades_data = [
-        {"course_id": "CS101", "course_name": "程序设计基础", "credit": 3.0, "score": 88, "semester": "2024-1", "category": "专业课", "attributes": ["编程"]},
-        {"course_id": "CS102", "course_name": "数据结构与算法", "credit": 4.0, "score": 76, "semester": "2024-1", "category": "专业课", "attributes": ["算法"]},
-        {"course_id": "MATH101", "course_name": "高等数学", "credit": 4.0, "score": 82, "semester": "2024-1", "category": "基础课", "attributes": ["数学"]},
-        {"course_id": "CS201", "course_name": "面向对象程序设计", "credit": 3.0, "score": 91, "semester": "2024-2", "category": "专业课", "attributes": ["编程"]},
-        {"course_id": "CS202", "course_name": "数据库原理", "credit": 3.0, "score": 79, "semester": "2024-2", "category": "专业课", "attributes": ["数据库"]},
-        {"course_id": "MATH102", "course_name": "线性代数", "credit": 3.0, "score": 85, "semester": "2024-2", "category": "基础课", "attributes": ["数学"]},
-    ]
+    student = get_current_student()
+    sid = student.get("student_id", student_id or "demo_user")
+    grades_data = student.get("grade_records", [])
     grade_records = [GradeRecord(**g) for g in grades_data]
-    profile = StudentProfile(student_id=student_id, name=name, major=major, grade=grade, grade_records=grade_records)
+    profile = StudentProfile(student_id=sid,
+                             name=student.get("name", name or "Demo"),
+                             major=student.get("major", major or "计算机科学与技术"),
+                             grade=student.get("grade", grade or "大二"),
+                             grade_records=grade_records)
 
     for at, mapping in ABILITY_COURSE_MAPPING.items():
         relevant = [r for r in profile.grade_records if _is_relevant(r.course_name, mapping["keywords"], mapping["courses"])]
@@ -83,7 +83,12 @@ async def generate_profile(student_id: str, name: str, major: str, grade: str) -
 
 def run(prompt: str = ""):
     import asyncio
-    result = asyncio.run(generate_profile("demo_user", "Demo", "计算机科学与技术", "大二"))
+    student = get_current_student()
+    result = asyncio.run(generate_profile(
+        student.get("student_id", "demo_user"),
+        student.get("name", "Demo"),
+        student.get("major", "计算机科学与技术"),
+        student.get("grade", "大二")))
     text = ""
     if hasattr(result, "content") and result.content:
         block = result.content[0]

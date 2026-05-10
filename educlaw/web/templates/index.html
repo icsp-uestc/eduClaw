@@ -36,12 +36,16 @@
         <span class="chat-title" id="chat-title">EduClaw</span>
       </div>
       <div class="chat-header-right">
+        <div class="user-badge" id="user-badge" title="当前用户, 点击切换">
+          <span class="user-avatar">&#x1F464;</span>
+          <span id="user-name">Demo</span>
+        </div>
         <button class="task-toggle-btn" id="task-toggle-btn" title="任务调度">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           <span class="task-badge" id="task-badge" style="display:none">0</span>
         </button>
-        <div class="llm-status disconnected" id="llm-status">
-          <span class="status-dot"></span>检测中…
+        <div class="llm-status disconnected" id="llm-status" title="点击测试模型连接">
+          <span class="status-dot"></span><span id="llm-status-text">检测中…</span>
         </div>
       </div>
     </div>

@@ -1,3 +1,3 @@
-from .app import app, run_web
+from .app import run_web
 
-__all__ = ["app", "run_web"]
+__all__ = ["run_web"]

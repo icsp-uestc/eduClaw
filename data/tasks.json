@@ -22,9 +22,9 @@
       "condition_id": "low_gpa",
       "cooldown": 86400,
       "enabled": true,
-      "last_run_at": null,
-      "next_run_at": "2026-05-11T12:07:33.750614",
-      "execution_count": 0
+      "last_run_at": "2026-05-10T14:17:55.215446",
+      "next_run_at": "2026-05-11T14:17:55.215446",
+      "execution_count": 1
     },
     {
       "task_id": "b465ad2a",

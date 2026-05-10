@@ -43,17 +43,76 @@ async function api(url, opts = {}) {
 // ===== Init =====
 async function init() {
   await checkStatus();
+  await loadUser();
   await loadSkills();
   await createNewConv();
   buildPopover();
   document.addEventListener('click', onGlobalClick);
 }
 
+// ===== User Management =====
+async function loadUser() {
+  const { data } = await api('/api/auth/status');
+  if (data) {
+    document.getElementById('user-name').textContent = data.name;
+    document.getElementById('user-badge').title = `${data.name} (${data.student_id})\n${data.major} ${data.grade}\n点击切换用户`;
+  }
+}
+
+// Click user badge to show user switcher
+const userBadge = document.getElementById('user-badge');
+let userPopup = null;
+
+userBadge.addEventListener('click', async e => {
+  e.stopPropagation();
+  if (userPopup) { userPopup.remove(); userPopup = null; return; }
+
+  const { data: users } = await api('/api/auth/users');
+  userPopup = document.createElement('div');
+  userPopup.className = 'user-popup open';
+  userPopup.style.position = 'absolute';
+  userPopup.style.top = (userBadge.offsetTop + userBadge.offsetHeight + 4) + 'px';
+  userPopup.style.right = '8px';
+
+  // Find current user
+  const { data: current } = await api('/api/auth/status');
+
+  users.forEach(u => {
+    const item = document.createElement('button');
+    item.className = 'user-popup-item' + (current && u.student_id === current.student_id ? ' active' : '');
+    item.innerHTML = `\u{1F464} ${u.name} <span style="color:#9ca3af;font-size:11px">${u.student_id}</span>`;
+    item.addEventListener('click', async () => {
+      await api('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ student_id: u.student_id }),
+      });
+      userPopup.remove(); userPopup = null;
+      loadUser();
+      createNewConv();
+    });
+    userPopup.appendChild(item);
+  });
+
+  userBadge.parentElement.style.position = 'relative';
+  userBadge.parentElement.appendChild(userPopup);
+
+  document.addEventListener('click', function closePopup(ev) {
+    if (userPopup && !userPopup.contains(ev.target) && ev.target !== userBadge && !userBadge.contains(ev.target)) {
+      userPopup.remove(); userPopup = null;
+      document.removeEventListener('click', closePopup);
+    }
+  });
+});
+
 async function checkStatus() {
   try {
     const { data } = await api('/api/status');
     llmConnected = data.llm_available;
     llmModel = data.model;
+    if (data.last_error) {
+      console.log('LLM last error:', data.last_error);
+    }
   } catch (e) {
     llmConnected = false;
   }
@@ -61,17 +120,51 @@ async function checkStatus() {
 }
 
 function updateStatusUI() {
-  const indicator = document.getElementById('llm-status');
-  if (!indicator) return;
+  const el = document.getElementById('llm-status');
+  const txt = document.getElementById('llm-status-text');
+  if (!el) return;
   if (llmConnected) {
-    indicator.className = 'llm-status connected';
-    indicator.title = 'LLM 已连接: ' + (llmModel || '');
-    indicator.innerHTML = '<span class="status-dot"></span>模型已连接';
+    el.className = 'llm-status connected';
+    el.title = 'LLM 已连接: ' + (llmModel || '') + '\n点击测试连接';
+    if (txt) txt.textContent = '模型已连接';
   } else {
-    indicator.className = 'llm-status disconnected';
-    indicator.title = 'LLM 未连接，使用技能模式';
-    indicator.innerHTML = '<span class="status-dot"></span>技能模式';
+    el.className = 'llm-status disconnected';
+    el.title = 'LLM 未连接\n点击测试连接';
+    if (txt) txt.textContent = '技能模式';
   }
+}
+
+// Click status to test LLM connection
+document.getElementById('llm-status').addEventListener('click', async () => {
+  const el = document.getElementById('llm-status');
+  const txt = document.getElementById('llm-status-text');
+  el.classList.add('testing');
+  if (txt) txt.textContent = '测试中…';
+
+  try {
+    const resp = await api('/api/status/test', { method: 'POST' });
+    if (resp.ok) {
+      llmConnected = true;
+      if (txt) txt.textContent = '模型已连接';
+      addSystemMsg('模型连接正常 ✓ — ' + (resp.data?.reply || '').slice(0, 50));
+    } else {
+      llmConnected = false;
+      if (txt) txt.textContent = '连接失败';
+      addSystemMsg('模型连接失败: ' + (resp.error || '未知错误'));
+    }
+  } catch (e) {
+    llmConnected = false;
+    if (txt) txt.textContent = '连接失败';
+    addSystemMsg('模型连接失败: ' + e.message);
+  }
+
+  updateStatusUI();
+  el.classList.remove('testing');
+});
+
+function addSystemMsg(text) {
+  renderMessage('system', text);
+  scrollBottom();
 }
 
 async function loadSkills() {
@@ -197,6 +290,7 @@ function updateSkillUI() {
 
 // ===== Conversation Management =====
 async function createNewConv() {
+  try { await api('/api/chat/clear', { method: 'POST' }); } catch(e) {}
   const { data } = await api('/api/conversations', { method: 'POST' });
   currentConvId = data.id;
   conversations[currentConvId] = { id: currentConvId, title: '新对话', messages: [], updated: '' };
@@ -209,7 +303,7 @@ async function createNewConv() {
         </svg>
       </div>
       <h2>你好，我是 EduClaw</h2>
-      <p>你的教育伴学助手。${llmConnected ? '模型已连接，你可以自由提问。' : '当前以技能模式运行，请选择一项技能或描述需求。'}<br>我可以帮你检索课程、规划学习路径、生成能力画像、检测学业预警。</p>
+      <p>${llmConnected ? '模型已连接，你可以自由提问。' : '当前以技能模式运行。'}<br>我可以帮你检索课程、规划学习路径、生成能力画像、检测学业预警。</p>
       <div class="welcome-skills" id="welcome-skills"></div>
     </div>`;
   buildWelcome();
@@ -301,9 +395,18 @@ function renderMessage(role, text, skill, chartData) {
     chartHtml = renderRadarChart(chartData);
   }
 
+  let actionHtml = '';
+  if (role === 'assistant') {
+    const { cleanText, actions } = parseActions(text);
+    if (actions.length > 0) {
+      text = cleanText;
+      actionHtml = renderActions(actions);
+    }
+  }
+
   div.innerHTML = `
     <div class="msg-avatar">${avatar}</div>
-    <div class="msg-body">${badgeHtml}${escapeHtml(text)}${chartHtml}</div>`;
+    <div class="msg-body">${badgeHtml}${escapeHtml(text)}${actionHtml}${chartHtml}</div>`;
   chatMessages.appendChild(div);
 }
 
@@ -447,9 +550,10 @@ async function sendMessage() {
       return;
     }
 
-    const { ok, data, skill: respSkill, chart_data } = resp;
+    const { ok, data, skill: respSkill, chart_data, mode } = resp;
     if (ok) {
-      renderMessage('assistant', data || '(无返回内容)', respSkill, chart_data);
+      const modeTag = mode === 'llm' ? '' : (mode === 'direct' ? ' [直接]' : '');
+      renderMessage('assistant', (data || '(无返回内容)') + modeTag, respSkill, chart_data);
       storeMessage('assistant', data || '', respSkill);
       if (respSkill) clearSkill();
     } else {
@@ -689,3 +793,141 @@ async function loadTaskLog() {
 
 // Poll for task updates every 30s
 setInterval(() => { if (document.visibilityState === 'visible') loadTasks(); }, 30000);
+
+// ===== Interactive Actions =====
+function parseActions(text) {
+  const actions = [];
+  const regex = /<action\s+(.*?)>([\s\S]*?)<\/action>/g;
+  let cleanText = text;
+  let m;
+  while ((m = regex.exec(text)) !== null) {
+    const attrsStr = m[1];
+    const body = m[2].trim();
+    const attrs = {};
+    for (const am of attrsStr.matchAll(/(\w+)="([^"]*)"/g)) {
+      attrs[am[1]] = am[2];
+    }
+    const action = { type: attrs.type || '', id: attrs.id || '', body };
+    if (action.type === 'input') {
+      action.prompt = attrs.prompt || '请输入';
+    } else if (action.type === 'select') {
+      action.options = parseTable(body);
+    }
+    actions.push(action);
+  }
+  cleanText = cleanText.replace(regex, '').trim();
+  return { cleanText, actions };
+}
+
+function parseTable(text) {
+  const lines = text.trim().split('\n').filter(l => l.trim() && !l.trim().startsWith('|-'));
+  if (lines.length < 2) return [];
+  const headers = lines[0].replace(/^\||\|$/g, '').split('|').map(h => h.trim());
+  const opts = [];
+  for (const line of lines.slice(1)) {
+    const cells = line.replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+    if (cells.length >= 2) {
+      const opt = { value: cells[0] };
+      for (let i = 1; i < headers.length && i < cells.length; i++) {
+        opt[headers[i]] = cells[i];
+      }
+      opts.push(opt);
+    }
+  }
+  return opts;
+}
+
+function renderActions(actions) {
+  let html = '';
+  actions.forEach(a => {
+    if (a.type === 'select') {
+      html += '<div class="action-select">';
+      if (a.id) html += `<div class="action-label">请选择:</div>`;
+      html += '<div class="action-buttons">';
+      a.options.forEach(opt => {
+        const label = opt['名称'] || opt['课程'] || opt['选项'] || opt.value;
+        const desc = opt['说明'] || opt['难度'] || opt['学分'] || '';
+        html += `<button class="action-btn" data-value="${opt.value}" data-action-id="${a.id}">${label}${desc ? '<small>' + desc + '</small>' : ''}</button>`;
+      });
+      html += '</div></div>';
+    } else if (a.type === 'input') {
+      html += `<div class="action-input" data-action-id="${a.id}">
+        <input type="text" class="action-input-field" placeholder="${a.prompt || '请输入'}" data-action-id="${a.id}">
+        <button class="action-input-send" data-action-id="${a.id}">发送</button>
+      </div>`;
+    }
+  });
+
+  // Bind events after rendering
+  setTimeout(() => {
+    document.querySelectorAll('.action-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const value = btn.dataset.value;
+        document.querySelectorAll('.action-btn').forEach(b => { b.disabled = true; b.style.opacity = '.6'; });
+        sendActionMessage(value);
+      });
+    });
+    document.querySelectorAll('.action-input-send').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const input = document.querySelector(`.action-input-field[data-action-id="${btn.dataset.actionId}"]`);
+        if (input && input.value.trim()) {
+          input.disabled = true;
+          btn.disabled = true;
+          sendActionMessage(input.value.trim());
+        }
+      });
+    });
+    document.querySelectorAll('.action-input-field').forEach(input => {
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          const btn = document.querySelector(`.action-input-send[data-action-id="${input.dataset.actionId}"]`);
+          if (btn && input.value.trim()) {
+            input.disabled = true;
+            btn.disabled = true;
+            sendActionMessage(input.value.trim());
+          }
+        }
+      });
+    });
+  }, 50);
+
+  return html;
+}
+
+async function sendActionMessage(value) {
+  renderMessage('user', value);
+  storeMessage('user', value, null);
+  scrollBottom();
+
+  sendBtn.disabled = true;
+  const typing = showTyping();
+
+  try {
+    const resp = await api('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: value, skill: currentSkill, conv_id: currentConvId }),
+    });
+    removeTyping(typing);
+    if (resp.needs_permission) {
+      pendingPermission = { pending_id: resp.pending_id, skill_id: resp.action_id, message: value };
+      showPermissionDialog(resp.action_name, resp.action_desc);
+      sendBtn.disabled = false;
+      return;
+    }
+    const { ok, data, skill: respSkill, chart_data, mode } = resp;
+    if (ok) {
+      const modeTag = mode === 'llm' ? '' : (mode === 'direct' ? ' [直接]' : '');
+      renderMessage('assistant', (data || '(无返回内容)') + modeTag, respSkill, chart_data);
+      storeMessage('assistant', data || '', respSkill);
+      if (respSkill) clearSkill();
+    } else {
+      renderMessage('system', '错误: ' + (data || '未知'));
+    }
+  } catch (e) {
+    removeTyping(typing);
+    renderMessage('system', '请求失败: ' + e.message);
+  }
+  sendBtn.disabled = false;
+  scrollBottom();
+}
