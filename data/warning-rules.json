@@ -1,0 +1,52 @@
+{
+  "gpa_below_2.0": {
+    "rule_id": "gpa_below_2.0",
+    "name": "GPA低于2.0预警",
+    "warning_type": "low_gpa",
+    "level": "danger",
+    "condition": "gpa < 2.0",
+    "message_template": "您的GPA为{gpa:.2f}，已低于2.0预警线。请注意调整学习状态！",
+    "action_suggestions": ["及时向任课老师请教", "参加学习辅导班", "与辅导员或学业导师沟通"],
+    "enabled": true
+  },
+  "gpa_below_2.5": {
+    "rule_id": "gpa_below_2.5",
+    "name": "GPA低于2.5提醒",
+    "warning_type": "low_gpa",
+    "level": "warning",
+    "condition": "gpa < 2.5",
+    "message_template": "您的GPA为{gpa:.2f}，接近预警线。建议加强重点课程学习！",
+    "action_suggestions": ["重点突破薄弱课程", "制定详细学习计划"],
+    "enabled": true
+  },
+  "failed_course": {
+    "rule_id": "failed_course",
+    "name": "课程不及格预警",
+    "warning_type": "failed_course",
+    "level": "critical",
+    "condition": "has_failed_course",
+    "message_template": "您有{count}门课程不及格：{courses}。请尽快安排补考或重修！",
+    "action_suggestions": ["联系教务处了解补考安排", "准备补考复习计划", "必要时申请重修"],
+    "enabled": true
+  },
+  "ability_decline": {
+    "rule_id": "ability_decline",
+    "name": "能力下降预警",
+    "warning_type": "ability_decline",
+    "level": "warning",
+    "condition": "ability_score_decline",
+    "message_template": "您的{ability}能力得分从{old_score}下降到{new_score}，请注意加强相关学习！",
+    "action_suggestions": ["复习相关课程内容", "选修提升该能力的课程", "参加相关实践活动"],
+    "enabled": true
+  },
+  "credit_shortage": {
+    "rule_id": "credit_shortage",
+    "name": "学分不足预警",
+    "warning_type": "missing_credit",
+    "level": "warning",
+    "condition": "credit_gap > 10",
+    "message_template": "距离毕业要求还差{credit_gap}学分，请合理安排后续选课！",
+    "action_suggestions": ["查询剩余必修课程", "规划后续学期的选课计划", "考虑暑期课程"],
+    "enabled": true
+  }
+}

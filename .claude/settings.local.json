@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(\"F:/eduClaw/educlaw/core/__init__.py\":*)",
+      "Bash(\"F:/eduClaw/educlaw/memory/__init__.py\":*)",
+      "Bash(\"F:/eduClaw/educlaw/utils/__init__.py\":*)",
+      "Bash(\"F:/eduClaw/educlaw/skills/__init__.py\":*)",
+      "Bash(\"F:/eduClaw/educlaw/config/__init__.py\":*)",
+      "Bash(\"F:/eduClaw/educlaw/__init__.py\":*)",
+      "Bash(\"F:/eduClaw/educlaw/agents/__init__.py\":*)",
+      "Bash(python start.py)",
+      "WebFetch(domain:doc.agentscope.io)",
+      "WebFetch(domain:deepwiki.com)",
+      "WebFetch(domain:www.bookstack.cn)",
+      "WebFetch(domain:www.cnblogs.com)",
+      "Bash(gh repo *)",
+      "Bash(pip show *)",
+      "Bash(/e/miniconda3/envs/educlaw/python -m pip install agentscope)",
+      "Bash(/e/miniconda3/envs/educlaw/python *)",
+      "Bash(echo \"EXIT_CODE=$?\")",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" --connect-timeout 3 http://localhost:11434/v1/models)",
+      "Bash(curl -s --connect-timeout 3 http://localhost:11434/v1/models)",
+      "Bash(curl -s --connect-timeout 3 http://localhost:11434/api/tags)",
+      "Bash(ollama pull *)"
+    ]
+  }
+}

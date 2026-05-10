@@ -1,0 +1,100 @@
+{
+  "key": "student.demo_user.profile",
+  "value": {
+    "student_id": "demo_user",
+    "name": "Demo User",
+    "major": "Computer Science",
+    "grade": "2024",
+    "gpa": 0.0,
+    "ability_scores": {
+      "programming": {
+        "ability_type": "programming",
+        "score": 60.0,
+        "level": "C",
+        "evidence": [
+          "暂无相关课程数据"
+        ],
+        "last_updated": "2026-05-06T14:58:44.419223"
+      },
+      "algorithm": {
+        "ability_type": "algorithm",
+        "score": 60.0,
+        "level": "C",
+        "evidence": [
+          "暂无相关课程数据"
+        ],
+        "last_updated": "2026-05-06T14:58:44.419223"
+      },
+      "system_design": {
+        "ability_type": "system_design",
+        "score": 60.0,
+        "level": "C",
+        "evidence": [
+          "暂无相关课程数据"
+        ],
+        "last_updated": "2026-05-06T14:58:44.419223"
+      },
+      "database": {
+        "ability_type": "database",
+        "score": 60.0,
+        "level": "C",
+        "evidence": [
+          "暂无相关课程数据"
+        ],
+        "last_updated": "2026-05-06T14:58:44.419223"
+      },
+      "project_management": {
+        "ability_type": "project_management",
+        "score": 60.0,
+        "level": "C",
+        "evidence": [
+          "暂无相关课程数据"
+        ],
+        "last_updated": "2026-05-06T14:58:44.419223"
+      },
+      "communication": {
+        "ability_type": "communication",
+        "score": 60.0,
+        "level": "C",
+        "evidence": [
+          "暂无相关课程数据"
+        ],
+        "last_updated": "2026-05-06T14:58:44.419223"
+      },
+      "learning_ability": {
+        "ability_type": "learning_ability",
+        "score": 60.0,
+        "level": "C",
+        "evidence": [
+          "暂无相关课程数据"
+        ],
+        "last_updated": "2026-05-06T14:58:44.419223"
+      },
+      "innovation": {
+        "ability_type": "innovation",
+        "score": 60.0,
+        "level": "C",
+        "evidence": [
+          "暂无相关课程数据"
+        ],
+        "last_updated": "2026-05-06T14:58:44.419223"
+      }
+    },
+    "grade_records": [],
+    "summary": "Demo User（Computer Science 2024），整体GPA：0.00，擅长能力：编程开发（C级），待提升：创新能力（C级）。",
+    "recommendations": [
+      "建议加强编程开发能力，可选修程序设计基础等课程",
+      "建议加强算法设计能力，可选修数据结构与算法等课程",
+      "建议加强系统设计能力，可选修操作系统等课程",
+      "建议加强数据库应用能力，可选修数据库原理等课程",
+      "建议加强项目管理能力，可选修软件项目管理等课程",
+      "建议加强沟通协作能力，可选修沟通技巧等课程",
+      "建议加强学习能力能力，可选修学习方法论等课程",
+      "建议加强创新能力能力，可选修创新思维等课程",
+      "整体成绩较低，建议调整学习方法，加强基础课程学习"
+    ],
+    "created_at": "2026-05-06T14:58:44.419223",
+    "updated_at": "2026-05-06T14:58:44.419223"
+  },
+  "timestamp": "2026-05-06T14:58:44.419223"
+}

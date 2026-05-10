@@ -1,0 +1,12 @@
+{
+  "rules": {
+    "course_search": 0,
+    "course_recommend": 0,
+    "learning_path": 0,
+    "student_profile": 1,
+    "academic_warning": 2,
+    "task_create": 1,
+    "task_delete": 2,
+    "task_execute": 2
+  }
+}

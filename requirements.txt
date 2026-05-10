@@ -1,0 +1,24 @@
+# EduClaw AgentScope 版本依赖
+
+# Agent 框架
+agentscope>=1.0.0
+
+# 异步支持
+asyncio-throttle>=1.0.2
+
+# HTTP 请求
+httpx>=0.24.0
+aiohttp>=3.8.0
+
+# 日志
+colorlog>=6.7.0
+
+# 工具库
+python-dotenv>=1.0.0
+
+# Web UI
+flask>=3.0
+
+# 测试
+pytest>=7.4.0
+pytest-asyncio>=0.21.0

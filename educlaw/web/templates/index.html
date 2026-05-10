@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduClaw — 教育伴学助手</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<button class="sidebar-toggle" id="sidebar-toggle" title="Toggle sidebar">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+</button>
+
+<aside class="sidebar" id="sidebar">
+  <button class="new-chat-btn" id="new-chat-btn">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    新对话
+  </button>
+  <div class="conv-list" id="conv-list">
+    <div class="conv-empty">暂无历史对话</div>
+  </div>
+  <div class="sidebar-footer">
+    <span class="sidebar-brand">EduClaw</span>
+    <span class="sidebar-version">v2.0</span>
+  </div>
+</aside>
+
+<div class="overlay" id="overlay"></div>
+
+<main class="main">
+
+  <section class="chat-view" id="chat-view">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <span class="chat-title" id="chat-title">EduClaw</span>
+      </div>
+      <div class="chat-header-right">
+        <button class="task-toggle-btn" id="task-toggle-btn" title="任务调度">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="task-badge" id="task-badge" style="display:none">0</span>
+        </button>
+        <div class="llm-status disconnected" id="llm-status">
+          <span class="status-dot"></span>检测中…
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chat-messages">
+      <div class="welcome">
+        <div class="welcome-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <h2>你好，我是 EduClaw</h2>
+        <p>你的教育伴学助手。我可以帮你检索课程、规划学习路径、生成能力画像、检测学业预警。请选择一项技能开始，或直接向我提问。</p>
+        <div class="welcome-skills" id="welcome-skills"></div>
+      </div>
+    </div>
+
+    <div class="chat-input-container">
+      <div class="skill-popover" id="skill-popover">
+        <div class="skill-popover-list" id="skill-popover-list"></div>
+      </div>
+      <div class="skill-selected" id="skill-selected"></div>
+      <div class="input-row">
+        <button class="skill-trigger" id="skill-trigger" title="选择技能">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </button>
+        <textarea id="chat-input" placeholder="输入你的问题…" rows="1"></textarea>
+        <button class="send-btn" id="send-btn" title="发送">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+      <p class="input-hint">按 Enter 发送，Shift+Enter 换行</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- Task Panel -->
+<div class="task-panel" id="task-panel">
+  <div class="task-panel-header">
+    <h3>任务调度中心</h3>
+    <button class="task-panel-close" id="task-panel-close">&times;</button>
+  </div>
+  <div class="task-panel-body">
+    <div class="task-section">
+      <h4>活跃任务</h4>
+      <div class="task-list" id="task-list">
+        <div class="task-empty">暂无任务</div>
+      </div>
+    </div>
+    <div class="task-section">
+      <h4>创建任务</h4>
+      <div class="task-form">
+        <select id="task-type" class="input-sm">
+          <option value="scheduled">定时任务</option>
+          <option value="trigger">触发任务</option>
+        </select>
+        <input type="text" id="task-name" placeholder="任务名称" class="input-sm">
+        <textarea id="task-prompt" placeholder="任务 Prompt" class="input-sm" rows="2"></textarea>
+        <div id="task-scheduled-opts">
+          <input type="number" id="task-interval" placeholder="间隔(秒)" class="input-sm" value="3600">
+        </div>
+        <div id="task-trigger-opts" style="display:none">
+          <select id="task-condition" class="input-sm"></select>
+          <input type="number" id="task-cooldown" placeholder="冷却时间(秒)" class="input-sm" value="86400">
+        </div>
+        <button class="btn-primary btn-sm" id="task-create-btn">添加任务</button>
+      </div>
+    </div>
+    <div class="task-section">
+      <h4>执行日志</h4>
+      <div class="task-log" id="task-log">
+        <div class="task-empty">暂无日志</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="task-overlay" id="task-overlay"></div>
+
+<!-- Permission Dialog -->
+<div class="perm-overlay" id="perm-overlay"></div>
+<div class="perm-dialog" id="perm-dialog">
+  <div class="perm-dialog-icon">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>
+  </div>
+  <h3 id="perm-dialog-title">权限确认</h3>
+  <p id="perm-dialog-desc">是否允许执行此操作？</p>
+  <div class="perm-dialog-actions">
+    <button class="perm-deny-btn" id="perm-deny-btn">拒绝</button>
+    <button class="perm-allow-btn" id="perm-allow-btn">允许</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="/static/script.js"></script>
+</body>
+</html>

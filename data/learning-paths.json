@@ -1,0 +1,47 @@
+{
+  "backend_dev": {
+    "path_id": "backend_dev",
+    "name": "后端开发工程师",
+    "target_abilities": ["编程", "数据库", "系统设计"],
+    "semesters": [
+      ["CS101", "MATH101"],
+      ["CS201", "MATH102"],
+      ["CS102", "CS202"],
+      ["CS301", "CS302"],
+      ["CS401"]
+    ],
+    "total_credits": 16.0,
+    "estimated_duration": 5,
+    "description": "培养具备扎实编程基础和系统架构能力的后端开发工程师"
+  },
+  "ai_researcher": {
+    "path_id": "ai_researcher",
+    "name": "人工智能研究员",
+    "target_abilities": ["算法", "数学", "学习能力"],
+    "semesters": [
+      ["CS101", "MATH101"],
+      ["CS102", "MATH102"],
+      ["CS201", "CS202"],
+      ["CS301", "CS402"],
+      ["CS402", "CS401"]
+    ],
+    "total_credits": 16.0,
+    "estimated_duration": 5,
+    "description": "培养具备算法研究和创新能力的人工智能研究员"
+  },
+  "fullstack_dev": {
+    "path_id": "fullstack_dev",
+    "name": "全栈开发工程师",
+    "target_abilities": ["编程", "系统设计", "沟通协作"],
+    "semesters": [
+      ["CS101", "MATH101"],
+      ["CS201", "CS202"],
+      ["CS102", "CS401"],
+      ["CS301", "CS302"],
+      ["CS401", "CS402"]
+    ],
+    "total_credits": 16.0,
+    "estimated_duration": 5,
+    "description": "培养具备前后端开发能力的全栈工程师"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "tasks": [
+    {
+      "task_id": "5084f174",
+      "name": "学分不足预警",
+      "prompt": "检测到学生 {student} 存在学分缺口风险：{reason}。请生成详细的学业预警报告，包括学分统计、差距分析、补救建议和推荐课程。",
+      "task_type": "trigger",
+      "interval": 0,
+      "condition_id": "credit_shortage",
+      "cooldown": 86400,
+      "enabled": true,
+      "last_run_at": "2026-05-10T12:07:33.750614",
+      "next_run_at": "2026-05-11T12:07:33.750614",
+      "execution_count": 2
+    },
+    {
+      "task_id": "4795c057",
+      "name": "GPA 过低预警",
+      "prompt": "学生 {student} 当前 GPA 为 {gpa}，请生成 GPA 预警报告，分析原因并提供提升建议。",
+      "task_type": "trigger",
+      "interval": 0,
+      "condition_id": "low_gpa",
+      "cooldown": 86400,
+      "enabled": true,
+      "last_run_at": null,
+      "next_run_at": "2026-05-11T12:07:33.750614",
+      "execution_count": 0
+    },
+    {
+      "task_id": "b465ad2a",
+      "name": "每日学习建议",
+      "prompt": "请根据当前日期生成一份每日学习建议，包括：1) 推荐今日复习的课程 2) 学习技巧分享 3) 激励语录。",
+      "task_type": "scheduled",
+      "interval": 86400,
+      "condition_id": "",
+      "cooldown": 3600,
+      "enabled": true,
+      "last_run_at": "2026-05-10T12:07:33.750614",
+      "next_run_at": "2026-05-11T12:07:33.750614",
+      "execution_count": 1
+    }
+  ]
+}

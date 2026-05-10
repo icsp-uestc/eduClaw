@@ -1,0 +1,41 @@
+{
+  "key": "student.demo_user.history.learning_path.20260506",
+  "value": {
+    "target": "我想成为后端开发工程师，请为我规划学习路径",
+    "path": {
+      "path_id": "backend_dev_custom",
+      "name": "后端开发工程师",
+      "target_abilities": [
+        "编程",
+        "数据库",
+        "系统设计"
+      ],
+      "semesters": [
+        [
+          "CS101",
+          "MATH101"
+        ],
+        [
+          "CS201",
+          "MATH102"
+        ],
+        [
+          "CS102",
+          "CS202"
+        ],
+        [
+          "CS301",
+          "CS302"
+        ],
+        [
+          "CS401"
+        ]
+      ],
+      "total_credits": 30.0,
+      "estimated_duration": 5,
+      "description": "培养具备扎实编程基础和系统架构能力的后端开发工程师（个性化调整）"
+    },
+    "timestamp": "2026-05-06T14:58:44.417223"
+  },
+  "timestamp": "2026-05-06T14:58:44.417223"
+}
