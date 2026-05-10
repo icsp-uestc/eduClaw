@@ -57,15 +57,48 @@ class StudentProfile:
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
 
+    @staticmethod
+    def _score_to_gp(score: float) -> float:
+        """百分制成绩转换为 4.0 制绩点。"""
+        if score >= 90:
+            return 4.0
+        elif score >= 85:
+            return 3.7
+        elif score >= 82:
+            return 3.3
+        elif score >= 78:
+            return 3.0
+        elif score >= 75:
+            return 2.7
+        elif score >= 72:
+            return 2.3
+        elif score >= 68:
+            return 2.0
+        elif score >= 64:
+            return 1.5
+        elif score >= 60:
+            return 1.0
+        else:
+            return 0.0
+
     def calculate_gpa(self) -> float:
+        """计算标准 4.0 制 GPA（加权绩点）。"""
         if not self.grade_records:
             return 0.0
         total_credits = 0
-        total_weighted_score = 0
+        total_weighted_gp = 0
         for record in self.grade_records:
             total_credits += record.credit
-            total_weighted_score += record.score * record.credit
-        return total_weighted_score / total_credits if total_credits > 0 else 0.0
+            total_weighted_gp += self._score_to_gp(record.score) * record.credit
+        return round(total_weighted_gp / total_credits, 2) if total_credits > 0 else 0.0
+
+    def calculate_weighted_avg(self) -> float:
+        """计算加权平均分（百分制）。"""
+        if not self.grade_records:
+            return 0.0
+        total_credits = sum(r.credit for r in self.grade_records)
+        total_weighted = sum(r.score * r.credit for r in self.grade_records)
+        return round(total_weighted / total_credits, 2) if total_credits > 0 else 0.0
 
     def to_dict(self) -> Dict[str, Any]:
         return {

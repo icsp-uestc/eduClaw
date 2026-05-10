@@ -99,9 +99,12 @@ def run_skill(skill_id: str, prompt: str = ""):
 
 
 def register_toolkits(target_toolkit):
-    """将所有已发现技能的 toolkit 注册到目标 AgentScope Toolkit 中。"""
+    """将所有已发现技能的 toolkit 注册到目标 AgentScope Toolkit 中。
+    跳过标记为 prompt-only 的技能。"""
     discover_skills()
     for mod in _skills.values():
+        if getattr(mod, "is_prompt_only", False):
+            continue
         for name, registered in mod.toolkit.tools.items():
             target_toolkit.register_tool_function(registered.original_func)
 
