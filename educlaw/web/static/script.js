@@ -406,7 +406,7 @@ function renderMessage(role, text, skill, chartData) {
 
   div.innerHTML = `
     <div class="msg-avatar">${avatar}</div>
-    <div class="msg-body">${badgeHtml}${escapeHtml(text)}${actionHtml}${chartHtml}</div>`;
+    <div class="msg-body">${badgeHtml}${renderContent(text, role)}${actionHtml}${chartHtml}</div>`;
   chatMessages.appendChild(div);
 }
 
@@ -474,6 +474,13 @@ function renderRadarChart(data) {
 
 function escapeHtml(s) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function renderContent(text, role) {
+  if (role === 'assistant' && typeof marked !== 'undefined') {
+    return marked.parse(text, {breaks: true, gfm: true});
+  }
+  return escapeHtml(text);
 }
 
 function showTyping() {

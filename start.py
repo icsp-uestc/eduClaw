@@ -7,6 +7,7 @@ EduClaw AgentScope 启动脚本
     python start.py --interactive          # 交互模式 (需要 LLM 后端)
     python start.py --web                  # 启动 Web UI
     python start.py --web --port 5000      # 指定端口
+    python start.py --web --platform feishu  # Web + 飞书 Bot
     python start.py --model gpt-4o-mini --key sk-xxx --url https://api.openai.com/v1
     python start.py --skip-llm             # 跳过 LLM，直接测试工具调用
 
@@ -41,6 +42,7 @@ def parse_args():
     parser.add_argument('--web', action='store_true', help='启动 Web UI')
     parser.add_argument('--port', type=int, default=8000, help='Web UI 端口 (默认 8000)')
     parser.add_argument('--host', type=str, default='0.0.0.0', help='Web UI 绑定地址')
+    parser.add_argument('--platform', type=str, default='', help='同时启动 Bot 平台: feishu, telegram')
     parser.add_argument('--model', type=str, default=None, help='模型名称')
     parser.add_argument('--key', type=str, default=None, help='API Key')
     parser.add_argument('--url', type=str, default=None, help='API Base URL')
@@ -158,19 +160,24 @@ async def main_entry():
 
     if args.web:
         from educlaw.web import run_web
-        run_web(host=args.host, port=args.port)
+        enable_feishu = args.platform == "feishu" or args.platform == "all"
+        run_web(host=args.host, port=args.port, enable_feishu=enable_feishu)
         return
 
-    # 自动检测可用模型
+    # 自动检测可用模型（仅在 .env 没有明确配置时）
     if not args.model:
-        available = await detect_ollama_models()
-        if available:
-            # 优先选 7b+ 的模型，否则用第一个
-            preferred = [m for m in available if "7b" in m.lower() or "8b" in m.lower()]
-            default_model = preferred[0] if preferred else available[0]
-            print(f"检测到本地模型: {', '.join(available)}")
-            print(f"使用: {default_model}")
-            args.model = default_model
+        env_model = os.getenv("LLM_MODEL")
+        if env_model:
+            args.model = env_model
+        else:
+            available = await detect_ollama_models()
+            if available:
+                # 优先选 7b+ 的模型，否则用第一个
+                preferred = [m for m in available if "7b" in m.lower() or "8b" in m.lower()]
+                default_model = preferred[0] if preferred else available[0]
+                print(f"检测到本地模型: {', '.join(available)}")
+                print(f"使用: {default_model}")
+                args.model = default_model
 
     await run_with_llm(args)
 
