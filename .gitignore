@@ -8,3 +8,4 @@ dist/
 build/
 logs/*.log
 doc/*
+.claude/
